@@ -574,10 +574,15 @@
       ratings.push({ term: term, rating: slider ? parseInt(slider.value, 10) : 1 });
     });
 
+    var latVal = document.getElementById("manual-lat").value;
+    var lonVal = document.getElementById("manual-lon").value;
+
     var payload = {
       subject:   subject,
       sample:    sample,
       timestamp: new Date().toISOString(),
+      latitude:  latVal !== "" ? parseFloat(latVal) : "",
+      longitude: lonVal !== "" ? parseFloat(lonVal) : "",
       ratings:   ratings
     };
 

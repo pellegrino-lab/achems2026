@@ -6,3 +6,4 @@ setup_sheets.R
 .DS_Store
 .Rhistory
 .secrets/
+qr_code.png
