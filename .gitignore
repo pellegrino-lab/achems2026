@@ -2,6 +2,7 @@ apps_script.js
 setup_sheets.R
 *.xlsx
 *.csv
+*.gsheet
 .DS_Store
 .Rhistory
 .secrets/
