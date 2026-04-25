@@ -344,7 +344,7 @@
   // ============================================================
   // Data
   // ============================================================
-  var TERMS = ["floral", "green", "ozone", "fermented", "earthy", "tropical", "metallic"];
+  var TERMS = [];
 
   function termDisplay(t) {
     return t.charAt(0).toUpperCase() + t.slice(1);
@@ -361,37 +361,51 @@
   // Init
   // ============================================================
   document.addEventListener("DOMContentLoaded", function () {
-    buildOdorGrid();
-    loadSamples();
+    loadSheetData();
   });
 
-  function loadSamples() {
+  function loadSheetData() {
     var rateSel    = document.getElementById("species-select");
     var resultsSel = document.getElementById("results-species");
-
     rateSel.innerHTML    = '<option value="">Loading…</option>';
     resultsSel.innerHTML = '<option value="">Loading…</option>';
 
-    fetch(APPS_SCRIPT_URL + "?action=samples")
-      .then(function (resp) { return resp.json(); })
-      .then(function (json) {
-        rateSel.innerHTML    = "";
-        resultsSel.innerHTML = "";
-        var samples = (json.status === "ok" && json.data.length) ? json.data : ["(no samples found)"];
-        samples.forEach(function (s) {
-          var o1 = document.createElement("option");
-          o1.value = s; o1.textContent = s;
-          rateSel.appendChild(o1);
+    var samplesUrl = APPS_SCRIPT_URL + "?action=samples";
+    var termsUrl   = APPS_SCRIPT_URL + "?action=terms";
 
-          var o2 = document.createElement("option");
-          o2.value = s; o2.textContent = s;
-          resultsSel.appendChild(o2);
-        });
-      })
-      .catch(function () {
-        rateSel.innerHTML    = '<option value="">Error loading samples</option>';
-        resultsSel.innerHTML = '<option value="">Error loading samples</option>';
+    Promise.all([
+      fetch(samplesUrl).then(function (r) { return r.json(); }),
+      fetch(termsUrl).then(function (r) { return r.json(); })
+    ])
+    .then(function (results) {
+      var samplesJson = results[0];
+      var termsJson   = results[1];
+
+      // Populate sample dropdowns
+      rateSel.innerHTML    = "";
+      resultsSel.innerHTML = "";
+      var samples = (samplesJson.status === "ok" && samplesJson.data.length) ? samplesJson.data : ["(no samples found)"];
+      samples.forEach(function (s) {
+        var o1 = document.createElement("option");
+        o1.value = s; o1.textContent = s;
+        rateSel.appendChild(o1);
+
+        var o2 = document.createElement("option");
+        o2.value = s; o2.textContent = s;
+        resultsSel.appendChild(o2);
       });
+
+      // Populate terms and build odor grid
+      if (termsJson.status === "ok" && termsJson.data.length) {
+        TERMS = termsJson.data;
+      }
+      buildOdorGrid();
+    })
+    .catch(function (err) {
+      rateSel.innerHTML    = '<option value="">Error loading samples</option>';
+      resultsSel.innerHTML = '<option value="">Error loading samples</option>';
+      console.error("loadSheetData failed:", err);
+    });
   }
 
   // ============================================================
