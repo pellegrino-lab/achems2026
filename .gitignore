@@ -1,0 +1,7 @@
+apps_script.js
+setup_sheets.R
+*.xlsx
+*.csv
+.DS_Store
+.Rhistory
+.secrets/
